@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.util.Log
 import org.json.JSONObject
 import java.io.BufferedReader
+import java.io.DataOutputStream
 import java.io.IOException
 import java.io.InputStreamReader
 import java.lang.Exception
@@ -20,10 +21,10 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        CallAPILoginAsyncTask().execute()
+        CallAPILoginAsyncTask("isa","12345").execute()
     }
 
-    private inner class CallAPILoginAsyncTask():AsyncTask<Any, Void, String>(){
+    private inner class CallAPILoginAsyncTask(val username: String, val password: String):AsyncTask<Any, Void, String>(){
         private lateinit var customProgressDialog: Dialog
 
         override fun onPreExecute(){
@@ -41,6 +42,24 @@ class MainActivity : AppCompatActivity() {
                 connection = url.openConnection() as HttpURLConnection
                 connection.doInput = true // get data
                 connection.doOutput = true // send data
+
+                connection.instanceFollowRedirects = false
+                connection.requestMethod = "POST"
+                connection.setRequestProperty("Content-Type","application/json")
+                connection.setRequestProperty("charset", "utf-8")
+                connection.setRequestProperty("Accept", "application/json")
+
+                connection.useCaches = false // cache removed
+
+                val writeDataOutputStream = DataOutputStream(connection.outputStream)
+                val jsonRequest = JSONObject()
+                jsonRequest.put("username", username)
+                jsonRequest.put("password", password)
+
+                writeDataOutputStream.writeBytes(jsonRequest.toString())
+                Log.i("username", username)
+                writeDataOutputStream.flush()
+                writeDataOutputStream.close()
 
                 val httpResult: Int = connection.responseCode // status code
                 if(httpResult == HttpURLConnection.HTTP_OK){
