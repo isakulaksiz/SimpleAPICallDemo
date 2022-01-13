@@ -1,10 +1,12 @@
 package com.example.simpleapicalldemo
 
+import android.annotation.SuppressLint
 import android.app.Dialog
 import android.os.AsyncTask
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import com.google.gson.Gson
 import org.json.JSONObject
 import java.io.BufferedReader
 import java.io.DataOutputStream
@@ -38,7 +40,7 @@ class MainActivity : AppCompatActivity() {
             var connection: HttpURLConnection? = null
 
             try {
-                val url = URL("https://run.mocky.io/v3/24bde847-1da8-40b2-9a78-b28f928e7012")
+                val url = URL("https://run.mocky.io/v3/2ffcab69-c565-4943-b7a7-51d78b8c88bb")
                 connection = url.openConnection() as HttpURLConnection
                 connection.doInput = true // get data
                 connection.doOutput = true // send data
@@ -100,7 +102,25 @@ class MainActivity : AppCompatActivity() {
                 Log.i("JSON Response Result", result)
             }
 
-            val jsonObj = JSONObject(result)
+            val responseData = Gson().fromJson(result, ResponseData::class.java)
+            Log.i("Message", responseData.message)
+            Log.i("User Id","${responseData.user_id}")
+            Log.i("Name", responseData.name)
+            Log.i("Email", responseData.email)
+            Log.i("Mobile", "${responseData.mobile}")
+
+            Log.i("Is profile completed", "${responseData.profile_details.is_profile_completed}")
+            Log.i("Rating", "${responseData.profile_details.rating}")
+
+            // list
+            for(item in responseData.data_list.indices){
+                Log.i("Value $item", "${responseData.data_list[item]}")
+                Log.i("Id","${responseData.data_list[item].id}")
+                Log.i("Value", responseData.data_list[item].value)
+            }
+
+
+           /* val jsonObj = JSONObject(result)
             val message = jsonObj.optString("message")
             Log.i("Message", message)
             val userId = jsonObj.optInt("user_id")
@@ -126,7 +146,7 @@ class MainActivity : AppCompatActivity() {
                 Log.i("ID","$id")
                 val value = dataItemObj.optString("value")
                 Log.i("Value", value)
-            }
+            }*/
 
         }
 
